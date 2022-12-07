@@ -1,16 +1,16 @@
 <script setup lang="ts">
 import { RouterLink, RouterView } from "vue-router";
+import Header from "./components/Header.vue";
 </script>
 
 <template>
   <div class="app">
-    <nav>
-      <RouterLink to="/">Play</RouterLink>
-      <RouterLink to="/scores">Scores</RouterLink>
-      <RouterLink to="/myprofile">My Profile</RouterLink>
-    </nav>
+    <div class="container">
+      <Header />
+    </div>
+
+    <RouterView />
   </div>
-  <RouterView />
 </template>
 
 <style></style>
