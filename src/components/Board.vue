@@ -49,8 +49,8 @@
           </tr>
         </tbody>
 
-        <tbody v-else v-if="board && board.getTiles()">
-          <tr v-for="tileRow in board.getTiles()">
+        <tbody v-else v-if="boardStore.board && boardStore.board.getTiles()">
+          <tr v-for="tileRow in boardStore.board.getTiles()">
             <td v-for="tile in tileRow">{{ tile }}</td>
           </tr>
         </tbody>
@@ -67,23 +67,26 @@
 
 <script lang="ts">
 import { defineComponent, ref } from "vue";
-import * as Board from "@/models/board";
+import { useBoardStore } from "@/stores/boardSlice";
 
 export default defineComponent({
   name: "board",
   setup() {
-    //data
-    const generator = ref(new Board.CyclicGenerator("ABCD"));
-    const board = ref<Board.Board<String>>();
+    //------data
+
+    //pinia state
+    const boardStore = useBoardStore();
+
+    //local state
     const newGame = ref(false);
 
-    //methods
+    //-------methods
     const setNewGame = () => {
       newGame.value = !newGame.value;
-      board.value = new Board.Board(generator.value, 4, 4);
+      boardStore.createBoard();
     };
 
-    return { newGame, board, setNewGame };
+    return { boardStore, newGame, setNewGame };
   },
 });
 </script>
