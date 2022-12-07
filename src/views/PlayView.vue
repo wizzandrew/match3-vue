@@ -1,7 +1,9 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import Board from "@/components/Board.vue";
+</script>
 
 <template>
   <div class="container">
-    <p>Play View</p>
+    <Board />
   </div>
 </template>

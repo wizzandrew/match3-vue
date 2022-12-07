@@ -155,6 +155,9 @@ export class Board<String> {
   }
 
   //getTiles():
+  getTiles(): Array<Array<string | undefined>> {
+    return this.tiles;
+  }
 
   getWidth(): number {
     return this.width;
