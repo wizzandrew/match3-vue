@@ -2,6 +2,6 @@
 
 <template>
   <div>
-    <p>Home View</p>
+    <p>Play View</p>
   </div>
 </template>
