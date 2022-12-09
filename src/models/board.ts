@@ -38,6 +38,9 @@ export class Position {
   setCol(col: number) {
     if (col) this.col = col;
   }
+  equals(pos: Position): boolean {
+    return this.col === pos.getCol() && this.row === pos.getRow();
+  }
 }
 
 export class Match<String> {
@@ -533,6 +536,10 @@ export class Board<String> {
     } else if (row === 0) {
       arr[row][col] = undefined;
     }
+  }
+
+  copy(): Board<String> {
+    return new Board(this.generator, this.width, this.height);
   }
 
   toString(): string {

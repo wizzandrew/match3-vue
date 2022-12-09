@@ -50,8 +50,17 @@
         </tbody>
 
         <tbody v-else v-if="boardStore.board && boardStore.board.getTiles()">
-          <tr v-for="tileRow in boardStore.board.getTiles()">
-            <td v-for="tile in tileRow">{{ tile }}</td>
+          <tr
+            v-for="(tileRow, rowIndex) in boardStore.board.getTiles()"
+            :key="rowIndex"
+          >
+            <td
+              v-for="(tile, tileIndex) in tileRow"
+              :key="rowIndex + tileIndex.toString(10)"
+              @click="handleCurrentMove(rowIndex + tileIndex.toString(10))"
+            >
+              {{ tile }}
+            </td>
           </tr>
         </tbody>
       </table>
@@ -68,6 +77,7 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { useBoardStore } from "@/stores/boardSlice";
+import * as Board from "@/models/board";
 
 export default defineComponent({
   name: "board",
@@ -86,7 +96,38 @@ export default defineComponent({
       boardStore.createBoard();
     };
 
-    return { boardStore, newGame, setNewGame };
+    const handleCurrentMove = (key: string) => {
+      //extract data
+      const move = new Board.Position(
+        Number(key.charAt(0)),
+        Number(key.charAt(1))
+      );
+
+      //manage move1, move2
+      //default current move -1:-1
+      if (boardStore.currentMove.equals(new Board.Position(-1, -1))) {
+        boardStore.setCurrentMove(move);
+      } else {
+        //find out if legal move
+        const currentMove = new Board.Position(
+          boardStore.currentMove?.getRow(),
+          boardStore.currentMove?.getCol()
+        );
+        const canMove = boardStore.board?.canMove(currentMove, move);
+
+        //manage legal move
+        if (canMove) {
+          const board = boardStore.board?.copy();
+          if (board != undefined) board.move(currentMove, move);
+          boardStore.updateBoard(board!);
+        }
+
+        //set current move to default
+        boardStore.setCurrentMove(new Board.Position(-1, -1));
+      }
+    };
+
+    return { boardStore, newGame, setNewGame, handleCurrentMove };
   },
 });
 </script>
