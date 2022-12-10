@@ -131,6 +131,7 @@ export class Board<String> {
   private matchAfterMove: Match<string>[];
   private matchAfterRefill: Match<string>[];
 
+  constructor(generator?: Generator<string>, width?: number, height?: number);
   constructor(
     generator: Generator<string>,
     width: number = 3,
@@ -146,13 +147,16 @@ export class Board<String> {
     // create empty array of length "height"
     this.tiles = new Array(this.height);
 
-    // insert into each index new array of length "width"
-    for (let i: number = 0; i < this.tiles.length; i++)
-      this.tiles[i] = new Array(this.width);
+    //build tiles
+    if (generator != undefined) {
+      // insert into each index new array of length "width"
+      for (let i: number = 0; i < this.tiles.length; i++)
+        this.tiles[i] = new Array(this.width);
 
-    for (let i: number = 0; i < this.tiles.length; i++) {
-      for (let j: number = 0; j < this.tiles[i].length; j++) {
-        this.tiles[i][j] = this.generator.next();
+      for (let i: number = 0; i < this.tiles.length; i++) {
+        for (let j: number = 0; j < this.tiles[i].length; j++) {
+          this.tiles[i][j] = this.generator.next();
+        }
       }
     }
   }
@@ -162,12 +166,44 @@ export class Board<String> {
     return this.tiles;
   }
 
+  setTiles(tiles: Array<Array<string | undefined>>) {
+    this.tiles = tiles;
+  }
+
   getWidth(): number {
     return this.width;
   }
 
+  setWidth(width: number) {
+    this.width = width;
+  }
+
   getHeight(): number {
     return this.height;
+  }
+
+  setHeight(height: number) {
+    this.height = height;
+  }
+
+  getListeners(): Array<any> {
+    return this.listeners;
+  }
+
+  setListeners(listeners: Array<any>) {
+    this.listeners = listeners;
+  }
+
+  getMatchAfterMove(): Match<string>[] {
+    return this.matchAfterMove;
+  }
+
+  getMatchAfterRefill(): Match<string>[] {
+    return this.matchAfterRefill;
+  }
+
+  setGenerator(generator: Generator<string>) {
+    this.generator = generator;
   }
 
   addListener(listener: any) {
@@ -539,7 +575,14 @@ export class Board<String> {
   }
 
   copy(): Board<String> {
-    return new Board(this.generator, this.width, this.height);
+    const copy = new Board();
+    copy.setWidth(this.width);
+    copy.setHeight(this.height);
+    copy.setGenerator(this.generator);
+    copy.setTiles(this.tiles);
+    copy.setListeners(this.listeners);
+
+    return copy;
   }
 
   toString(): string {

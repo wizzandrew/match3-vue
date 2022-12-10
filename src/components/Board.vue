@@ -2,8 +2,8 @@
   <div class="p-3 mt-5 bg-light bg-gradien">
     <div class="row">
       <div class="col-5 d-flex">
-        <p>Score: &emsp;</p>
-        <p>Moves left: &emsp;</p>
+        <p>Score: {{ boardStore.score }} &emsp;</p>
+        <p>Moves left: {{ boardStore.moveCountdown }} &emsp;</p>
       </div>
       <div class="col-3">
         <button class="btn btn-secondary">Finish Game</button>
@@ -16,7 +16,7 @@
 
     <div class="row">
       <div className="col-4 offset-4 text-align-center">
-        <p>moveNotification</p>
+        <p>Notifications: {{ moveNotifications }}</p>
       </div>
     </div>
 
@@ -75,7 +75,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref } from "vue";
+import { defineComponent, ref, computed } from "vue";
 import { useBoardStore } from "@/stores/boardSlice";
 import * as Board from "@/models/board";
 
@@ -89,6 +89,26 @@ export default defineComponent({
 
     //local state
     const newGame = ref(false);
+
+    //computed
+    const matchEffects = computed(() => {
+      return boardStore.events?.length > 0
+        ? boardStore.events.filter((e) => e.getKind() === "Match")
+        : new Array<Board.BoardEvent<string>>();
+    });
+
+    const moveNotifications = computed(() => {
+      const events = matchEffects.value;
+
+      let notifications = "";
+      if (events != null) {
+        events.map((event) => {
+          notifications += `Match: ${event.getMatch()?.getMatched()}  `;
+        });
+      }
+
+      return notifications;
+    });
 
     //-------methods
     const setNewGame = () => {
@@ -108,6 +128,9 @@ export default defineComponent({
       if (boardStore.currentMove.equals(new Board.Position(-1, -1))) {
         boardStore.setCurrentMove(move);
       } else {
+        //update move countdown
+        boardStore.updateMoveCountdown();
+
         //find out if legal move
         const currentMove = new Board.Position(
           boardStore.currentMove?.getRow(),
@@ -117,17 +140,34 @@ export default defineComponent({
 
         //manage legal move
         if (canMove) {
+          //copy board to construct an instance
           const board = boardStore.board?.copy();
+
+          //clear move notifications
+          boardStore.setEventsToDefault();
+
+          //perform move
           if (board != undefined) board.move(currentMove, move);
-          boardStore.updateBoard(board!);
+          boardStore.updateBoard(board!, matchEffects.value.length);
         }
 
         //set current move to default
         boardStore.setCurrentMove(new Board.Position(-1, -1));
       }
+
+      //check moveCountdown
+      if (boardStore.moveCountdown - 1 === -1) {
+        alert("game over");
+      }
     };
 
-    return { boardStore, newGame, setNewGame, handleCurrentMove };
+    return {
+      boardStore,
+      newGame,
+      moveNotifications,
+      setNewGame,
+      handleCurrentMove,
+    };
   },
 });
 </script>
