@@ -5,6 +5,17 @@ export type CreateAccount = {
   password: string;
 };
 
+export type LoginProps = {
+  username: string;
+  password: string;
+};
+
+export type LoginReply = {
+  token: string | null;
+  userId: number | null;
+  error?: string;
+};
+
 export async function createAccount(create: CreateAccount): Promise<void> {
   //let result ={success: false};
 
@@ -28,4 +39,34 @@ export async function createAccount(create: CreateAccount): Promise<void> {
     .catch((err) => {
       alert("Error" + err.message);
     });
+}
+
+export async function loginUser(login: LoginProps): Promise<LoginReply> {
+  let result: LoginReply = {
+    token: null,
+    userId: null,
+  };
+
+  const response = await fetch(URL + "login", {
+    method: "POST",
+    body: JSON.stringify(login),
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "same-origin",
+  });
+
+  if (response.ok) {
+    await response
+      .json()
+      .then((data) => (result = data))
+      .catch((err) => console.log(err));
+  } else {
+    result = {
+      token: null,
+      userId: null,
+      error: response.statusText,
+    };
+  }
+  return result;
 }

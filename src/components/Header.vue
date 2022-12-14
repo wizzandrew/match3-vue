@@ -28,14 +28,65 @@
                 <label class="form-label" for="__password">Password</label>
                 <input
                   class="form-control"
-                  type="text"
+                  type="password"
                   v-model="createPassword"
                   name="newPassword"
                   id="__password"
                 />
               </div>
-              <button type="submit" class="btn btn-primary d-flex my-0 mx-auto">
+              <button
+                type="submit"
+                class="btn btn-primary d-flex my-0 mx-auto"
+                data-bs-dismiss="modal"
+              >
                 Create Account
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="modal" id="loginModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Login</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form action="" @submit.prevent="login">
+              <div class="form-group mb-3">
+                <label class="form-label" for="_username">Username</label>
+                <input
+                  class="form-control"
+                  type="text"
+                  v-model="loginUsername"
+                  name="loginUsername"
+                  id="_username"
+                />
+              </div>
+              <div class="form-group mb-3">
+                <label class="form-label" for="_password">Password</label>
+                <input
+                  class="form-control"
+                  type="password"
+                  v-model="loginPassword"
+                  name="loginPassword"
+                  id="_password"
+                />
+              </div>
+              <button
+                type="submit"
+                class="btn btn-primary d-flex my-0 mx-auto"
+                data-bs-dismiss="modal"
+              >
+                Login
               </button>
             </form>
           </div>
@@ -63,21 +114,30 @@
                 >Play</RouterLink
               >
             </li>
-            <li class="nav-item">
+            <li class="nav-item" v-show="userStore.token != null">
               <RouterLink to="/scores" class="nav-link">Scores</RouterLink>
             </li>
           </ul>
 
           <ul class="navbar-nav ms-auto">
-            <li class="nav-item">
+            <li class="nav-item" v-show="userStore.token != null">
               <RouterLink to="/myprofile" class="nav-link"
                 >My Profile</RouterLink
               >
             </li>
-            <li class="nav-item">
-              <button class="btn btn-outline-secondary">Log in</button>
+            <li class="nav-item" v-if="userStore.token === null">
+              <button
+                class="btn btn-outline-secondary"
+                data-bs-toggle="modal"
+                data-bs-target="#loginModal"
+              >
+                Log in
+              </button>
             </li>
-            <li class="nav-item">
+            <li class="nav-item" v-else>
+              <button class="btn btn-outline-secondary">Log out</button>
+            </li>
+            <li class="nav-item" v-show="userStore.token === null">
               <button
                 class="btn btn-light"
                 data-bs-toggle="modal"
@@ -96,27 +156,54 @@
 <script lang="ts">
 import { defineComponent, ref } from "vue";
 import { RouterLink } from "vue-router";
+import { useUserStore } from "@/stores/userSlice";
 import * as api from "@/shared/api";
 
 export default defineComponent({
   name: "header",
   setup() {
+    //pinia state
+    const userStore = useUserStore();
+
     //data
     const createUsername = ref("");
     const createPassword = ref("");
 
+    const loginUsername = ref("");
+    const loginPassword = ref("");
+
     //methods
     const createAccount = () => {
-      // console.log(
-      //   "user: " + createUsername.value + "\npassword: " + createPassword.value
-      // );
       api.createAccount({
         username: createUsername.value,
         password: createPassword.value,
       });
     };
 
-    return { createUsername, createPassword, createAccount };
+    const login = () => {
+      const login = api.loginUser({
+        username: loginUsername.value,
+        password: loginPassword.value,
+      });
+
+      login
+        .then((response) => {
+          if (response.token != null && response.userId != null) {
+            userStore.login(response.token, response.userId);
+          }
+        })
+        .catch((err) => console.log(err));
+    };
+
+    return {
+      userStore,
+      createUsername,
+      createPassword,
+      loginUsername,
+      loginPassword,
+      createAccount,
+      login,
+    };
   },
 });
 </script>
