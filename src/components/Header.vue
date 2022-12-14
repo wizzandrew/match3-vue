@@ -1,4 +1,49 @@
 <template>
+  <div class="modalContainer">
+    <div class="modal" id="createAccountModal" tabindex="-1">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Create Account</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form action="" @submit.prevent="createAccount">
+              <div class="form-group mb-3">
+                <label class="form-label" for="__username">Username</label>
+                <input
+                  class="form-control"
+                  type="text"
+                  v-model="createUsername"
+                  name="newUsername"
+                  id="__username"
+                />
+              </div>
+              <div class="form-group mb-3">
+                <label class="form-label" for="__password">Password</label>
+                <input
+                  class="form-control"
+                  type="text"
+                  v-model="createPassword"
+                  name="newPassword"
+                  id="__password"
+                />
+              </div>
+              <button type="submit" class="btn btn-primary d-flex my-0 mx-auto">
+                Create Account
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="header">
     <nav class="navbar navbar-expand-md bg-light">
       <div class="container-fluid">
@@ -32,6 +77,15 @@
             <li class="nav-item">
               <button class="btn btn-outline-secondary">Log in</button>
             </li>
+            <li class="nav-item">
+              <button
+                class="btn btn-light"
+                data-bs-toggle="modal"
+                data-bs-target="#createAccountModal"
+              >
+                Create Account
+              </button>
+            </li>
           </ul>
         </div>
       </div>
@@ -40,12 +94,30 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from "vue";
+import { defineComponent, ref } from "vue";
 import { RouterLink } from "vue-router";
+import * as api from "@/shared/api";
 
 export default defineComponent({
   name: "header",
-  setup() {},
+  setup() {
+    //data
+    const createUsername = ref("");
+    const createPassword = ref("");
+
+    //methods
+    const createAccount = () => {
+      // console.log(
+      //   "user: " + createUsername.value + "\npassword: " + createPassword.value
+      // );
+      api.createAccount({
+        username: createUsername.value,
+        password: createPassword.value,
+      });
+    };
+
+    return { createUsername, createPassword, createAccount };
+  },
 });
 </script>
 
