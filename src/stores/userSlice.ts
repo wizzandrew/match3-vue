@@ -10,9 +10,15 @@ export const useUserStore = defineStore("user", () => {
     userId.value = _userId;
   }
 
+  function logout() {
+    token.value = null;
+    userId.value = null;
+  }
+
   return {
     token,
     userId,
     login,
+    logout,
   };
 });

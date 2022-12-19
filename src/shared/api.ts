@@ -128,3 +128,26 @@ export async function patchGame(
   }
   return result;
 }
+
+export async function logoutUser(token: string): Promise<{ success: boolean }> {
+  let result = { success: false };
+
+  const response = await fetch(URL + "logout?token=" + token, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "same-origin",
+  });
+
+  if (response.ok) {
+    await response
+      .json()
+      .then((data) => (result = data.success))
+      .catch((err) => console.log(err));
+  } else {
+    throw new Error("\nStatus: " + response.status + " " + response.statusText);
+  }
+
+  return result;
+}

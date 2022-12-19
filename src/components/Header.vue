@@ -135,7 +135,9 @@
               </button>
             </li>
             <li class="nav-item" v-else>
-              <button class="btn btn-outline-secondary">Log out</button>
+              <button class="btn btn-outline-secondary" @click="logout">
+                Log out
+              </button>
             </li>
             <li class="nav-item" v-show="userStore.token === null">
               <button
@@ -195,6 +197,11 @@ export default defineComponent({
         .catch((err) => console.log(err));
     };
 
+    const logout = () => {
+      api.logoutUser(userStore.token!).catch((err) => console.log(err));
+      userStore.logout();
+    };
+
     return {
       userStore,
       createUsername,
@@ -203,6 +210,7 @@ export default defineComponent({
       loginPassword,
       createAccount,
       login,
+      logout,
     };
   },
 });
