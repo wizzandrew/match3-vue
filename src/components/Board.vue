@@ -68,7 +68,20 @@
 
     <div className="row">
       <div className="col-2 offset-5">
-        <button class="btn btn-secondary" @click="setNewGame">New Game</button>
+        <button
+          v-show="newGame === true"
+          class="btn btn-secondary"
+          @click="setNewGame"
+        >
+          New Game
+        </button>
+        <button
+          v-show="newGame === false"
+          class="btn btn-secondary newGameBtn"
+          @click="setNewGame"
+        >
+          New Game
+        </button>
       </div>
     </div>
   </div>
@@ -77,7 +90,9 @@
 <script lang="ts">
 import { defineComponent, ref, computed } from "vue";
 import { useBoardStore } from "@/stores/boardSlice";
+import { useUserStore } from "@/stores/userSlice";
 import * as Board from "@/models/board";
+import * as api from "@/shared/api";
 
 export default defineComponent({
   name: "board",
@@ -86,6 +101,7 @@ export default defineComponent({
 
     //pinia state
     const boardStore = useBoardStore();
+    const userStore = useUserStore();
 
     //local state
     const newGame = ref(false);
@@ -111,9 +127,13 @@ export default defineComponent({
     });
 
     //-------methods
-    const setNewGame = () => {
-      newGame.value = !newGame.value;
-      boardStore.createBoard();
+    const setNewGame = async () => {
+      if (userStore.token != null) {
+        newGame.value = true;
+        const game = await api.postGame(userStore.token);
+        setTimeout(() => boardStore.setGame(game), 1000);
+        boardStore.createBoard();
+      }
     };
 
     const handleCurrentMove = (key: string) => {
@@ -157,17 +177,44 @@ export default defineComponent({
 
       //check moveCountdown
       if (boardStore.moveCountdown - 1 === -1) {
-        alert("game over");
+        handleFinishGame();
       }
+    };
+
+    const handleFinishGame = async () => {
+      alert("Game Over! Score:" + boardStore.score);
+
+      if (userStore.token != null) {
+        if (boardStore.game != null) {
+          await api.patchGame({
+            token: userStore.token,
+            user: userStore.userId!,
+            id: boardStore.game.id,
+            score: boardStore.score,
+            completed: true,
+          });
+        }
+        boardStore.gameOver();
+      }
+      newGame.value = false;
     };
 
     return {
       boardStore,
+      userStore,
       newGame,
       moveNotifications,
       setNewGame,
       handleCurrentMove,
+      handleFinishGame,
     };
   },
 });
 </script>
+
+<style>
+.newGameBtn {
+  position: absolute;
+  top: 290px;
+}
+</style>

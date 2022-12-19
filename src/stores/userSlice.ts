@@ -12,6 +12,7 @@ export const useUserStore = defineStore("user", () => {
 
   return {
     token,
+    userId,
     login,
   };
 });

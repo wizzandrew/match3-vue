@@ -1,10 +1,12 @@
 import { ref, computed } from "vue";
 import { defineStore } from "pinia";
 import * as Board from "@/models/board";
+import type { Game } from "@/models/types";
 
 export const useBoardStore = defineStore("board", () => {
   const generator = ref(new Board.CyclicGenerator("ABCD"));
-  const board = ref<Board.Board<String>>();
+  const board = ref<Board.Board<String> | null>();
+  const game = ref<Game | null>(null);
   const currentMove = ref<Board.Position>(new Board.Position(-1, -1));
   const score = ref(0);
   const events = ref<Board.BoardEvent<string>[]>(
@@ -37,8 +39,24 @@ export const useBoardStore = defineStore("board", () => {
     moveCountdown.value -= 1;
   }
 
+  function setGame(_game: Game | null) {
+    if (_game != null) {
+      game.value = _game;
+    }
+  }
+
+  function gameOver() {
+    board.value = null;
+    game.value = null;
+    currentMove.value = new Board.Position(-1, -1);
+    score.value = 0;
+    events.value = [];
+    moveCountdown.value = 0;
+  }
+
   return {
     board,
+    game,
     currentMove,
     score,
     events,
@@ -48,5 +66,7 @@ export const useBoardStore = defineStore("board", () => {
     setCurrentMove,
     setEventsToDefault,
     updateMoveCountdown,
+    setGame,
+    gameOver,
   };
 });
