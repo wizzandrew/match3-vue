@@ -151,3 +151,20 @@ export async function logoutUser(token: string): Promise<{ success: boolean }> {
 
   return result;
 }
+
+export async function getGames(token: string): Promise<Game[]> {
+  let result: Game[] = [];
+
+  const response = await fetch(URL + "games?token=" + token);
+
+  if (response.ok) {
+    await response
+      .json()
+      .then((data) => (result = data))
+      .catch((err) => console.log(err));
+  } else {
+    throw new Error("\nStatus: " + response.status + " " + response.statusText);
+  }
+
+  return result as Game[];
+}
