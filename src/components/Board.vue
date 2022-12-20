@@ -6,7 +6,7 @@
         <p>Moves left: {{ boardStore.moveCountdown }} &emsp;</p>
       </div>
       <div class="col-3">
-        <button class="btn btn-secondary">Finish Game</button>
+        <!-- <button class="btn btn-secondary">Finish Game</button> -->
       </div>
       <div className="col-3 d-flex justify-content-end">
         <button class="btn btn-danger">X</button>

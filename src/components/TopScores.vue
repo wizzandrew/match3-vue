@@ -3,7 +3,7 @@
     <ol v-if="games">
       <li key="game.id" v-for="game in top3scores">Score: {{ game.score }}</li>
     </ol>
-    <p v-else>No games fetched</p>
+    <p v-if="!games">No games fetched</p>
   </div>
 </template>
 

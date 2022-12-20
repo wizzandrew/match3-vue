@@ -1,5 +1,5 @@
 import { URL } from "./utils";
-import type { Game } from "@/models/types";
+import type { Account, Game } from "@/models/types";
 
 export type CreateAccount = {
   username: string;
@@ -15,6 +15,11 @@ export type LoginReply = {
   token: string | null;
   userId: number | null;
   error?: string;
+};
+
+export type GetAccountProps = {
+  id: number;
+  token: string;
 };
 
 export type PatchGame = { token: string } & Game;
@@ -167,4 +172,23 @@ export async function getGames(token: string): Promise<Game[]> {
   }
 
   return result as Game[];
+}
+
+export async function getUserAccount(props: GetAccountProps): Promise<Account> {
+  let result: Account = { username: "", password: "", id: -1, admin: false };
+
+  const response = await fetch(
+    URL + "users/" + props.id + "?token=" + props.token
+  );
+
+  if (response.ok) {
+    await response
+      .json()
+      .then((data) => (result = data))
+      .catch((err) => console.log(err));
+  } else {
+    throw new Error("\nStatus: " + response.status + " " + response.statusText);
+  }
+
+  return result as Account;
 }
